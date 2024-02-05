@@ -1,0 +1,39 @@
+/* Image */
+.body-wrapper header .header-middle .container .row .col-lg-3 .logo a img{
+    width:60% !important;
+    height: 100%;
+   }
+
+   /* Column 9/12 */
+.header-middle .col-lg-9{
+    height:51px;
+    top:1px;
+   }
+
+   /* Header middle */
+   .body-wrapper header .header-middle{
+    transform:translatex(0px) translatey(0px);
+   }
+
+   /* Image */
+   .logo a img{
+    display:inline-block;
+    transform:translatex(0px) translatey(0px) !important;
+    position:relative;
+    top:-8px;
+   }
+
+   /* Image */
+   .body-wrapper header .header-middle .container .row .col-lg-3 .logo a img{
+    width:179px !important;
+   }
+
+   @media (min-width:1200px){
+
+    /* Header middle */
+    .body-wrapper header .header-middle{
+     padding-top:19px;
+     padding-bottom:2px;
+    }
+
+   }
