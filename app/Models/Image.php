@@ -12,4 +12,8 @@ class Image extends Model
         'source',
         'image_alt',
     ];
+    public function product()
+    {
+        return $this->belongsToMany(Product::class, 'product_images', 'image_id', 'product_id');
+    }
 }

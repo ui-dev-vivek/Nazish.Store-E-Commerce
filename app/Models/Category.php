@@ -24,4 +24,8 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent');
     }
+    public function product()
+    {
+        return $this->belongsToMany(Product::class, 'category_map', 'category_id', 'product_id');
+    }
 }

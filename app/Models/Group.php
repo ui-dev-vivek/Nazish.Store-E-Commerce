@@ -14,5 +14,9 @@ class Group extends Model
         'group_name',
         'group_code',
     ];
-}
 
+    public function product()
+    {
+        return $this->belongsToMany(Product::class, 'group_product', 'group_id', 'product_id');
+    }
+}

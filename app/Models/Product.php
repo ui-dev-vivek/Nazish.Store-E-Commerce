@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -27,5 +28,35 @@ class Product extends Model
     public function group()
     {
         return $this->belongsTo(Group::class);
+    }
+    public function priceTag()
+    {
+        return $this->hasMany(PriceTag::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_map', 'product_id', 'category_id');
+    }
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_product', 'product_id', 'group_id');
+    }
+    public function images()
+    {
+        return $this->belongsToMany(Image::class, 'product_images', 'product_id', 'image_id');
+    }
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($product) {
+            if (Auth::check()) {
+                $product->user_id = Auth::id();
+                $product->group_id = 1;
+            } else {
+                $product->user_id = null;
+                $product->group_id = 1;
+            }
+        });
     }
 }
