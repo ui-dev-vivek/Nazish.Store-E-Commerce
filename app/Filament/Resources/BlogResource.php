@@ -17,7 +17,14 @@ class BlogResource extends Resource
 {
     protected static ?string $model = Blog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $navigationBadgeTooltip = 'Active Blogs';
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('is_active', 1)->count();
+    }
 
     public static function form(Form $form): Form
     {

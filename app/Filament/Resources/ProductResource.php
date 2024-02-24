@@ -33,10 +33,15 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     // protected static ?string $navigationGroup = 'Products';
-    protected static ?string $navigationLable = 'Add Product';
+    protected static ?int $navigationSort = 1;
 
+    protected static ?string $navigationBadgeTooltip = 'Active Products';
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('is_active', 1)->count();
+    }
 
     public static function form(Form $form): Form
     {

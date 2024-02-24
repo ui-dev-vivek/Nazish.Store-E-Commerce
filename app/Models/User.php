@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Panel;
+
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -21,6 +25,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'avatar'
     ];
 
     /**
@@ -42,4 +48,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // return str_ends_with($this->email, '@gmale.com') && $this->hasVerifiedEmail();
+        if ($panel->getId() === 'admin') {
+            return $this->role === 'admin';
+        }
+        return true;
+    }
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->avatar;
+    }
 }

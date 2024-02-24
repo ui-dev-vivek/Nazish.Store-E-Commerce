@@ -60,6 +60,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            // ->registration()
+            ->passwordReset()
+            // ->emailVerification()
+            ->profile();
     }
 }
