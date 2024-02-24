@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources;
 
+
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
+use App\Filament\Resources\ProductResource\RelationManagers\ImagesRelationManager;
+use App\Filament\Resources\ProductResource\RelationManagers\PriceTagRelationManager;
 use App\Models\Category;
 use App\Models\Group;
 use App\Models\Image;
@@ -31,7 +34,7 @@ class ProductResource extends Resource
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Products';
+    // protected static ?string $navigationGroup = 'Products';
     protected static ?string $navigationLable = 'Add Product';
 
 
@@ -59,7 +62,7 @@ class ProductResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->live()
-                            ->columnSpanFull()
+                            // ->columnSpanFull()
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
                                 if (($get('slug') ?? '') !== Str::slug($old)) {
                                     return;
@@ -76,6 +79,12 @@ class ProductResource extends Resource
 
                         Forms\Components\TextInput::make('sub_title')
                             ->maxLength(255),
+
+                        Forms\Components\Select::make('thumbnail')
+                            ->relationship('images', 'image_alt')
+                            ->searchable()
+                            ->live()
+                            ->preload(),
                     ])->columns(2),
                 Forms\Components\Section::make('Maping')
                     ->schema([
@@ -138,29 +147,7 @@ class ProductResource extends Resource
                             ->fileAttachmentsVisibility('private')
                             ->columnSpanFull(),
                     ])->columns(2),
-                Forms\Components\Select::make('images')
-                    ->relationship('images', 'source') // Use the image source field for display
-                    ->searchable()
-                    ->multiple()
-                    ->preload()
-                    ->createOptionForm([
-                        FileUpload::make('source')
-                            ->directory('product-images')
-                            ->visibility('private'),
-                        TextInput::make('image_alt')
-                            ->label('Image Description')
-                            ->required()
-                            ->maxLength(100),
-                        Forms\Components\Toggle::make('images.is_thumbnail')
-                            ->label('Active')
-                            ->onIcon('heroicon-m-check-circle')
-                            ->offIcon('heroicon-m-x-circle')
-                            ->onColor('success')
-                            ->offColor('danger')
-                            ->default(true)
-                            ->required(),
-                    ])
-                    ->required(),
+
 
 
             ])->columns(2);
@@ -218,7 +205,9 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ImagesRelationManager::class,
+            PriceTagRelationManager::class
+
         ];
     }
 

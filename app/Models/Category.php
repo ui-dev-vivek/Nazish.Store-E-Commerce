@@ -24,8 +24,12 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent');
     }
-    public function product()
+    public function products()
     {
         return $this->belongsToMany(Product::class, 'category_map', 'category_id', 'product_id');
+    }
+    public function blogs()
+    {
+        return $this->belongsToMany(Blog::class, 'category_map', 'category_id', 'blog_id');
     }
 }
