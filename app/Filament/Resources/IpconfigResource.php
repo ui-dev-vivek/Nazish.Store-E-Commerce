@@ -18,7 +18,7 @@ class IpconfigResource extends Resource
     protected static ?string $model = Ipconfig::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cursor-arrow-ripple';
-    protected static ?string $navigationLabel = 'Visitors';
+    // protected static ?string $navigationLabel = 'Visitorsprotected static ?string $navigationLabel = 'Custom Navigation Label';';
     protected static ?int $navigationSort = 9;
 
     public static function form(Form $form): Form
