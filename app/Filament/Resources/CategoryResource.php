@@ -11,12 +11,14 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
+use Filament\Infolists\Infolist;
 
 class CategoryResource extends Resource
 {
@@ -90,6 +92,15 @@ class CategoryResource extends Resource
             ]);
     }
 
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('name'),
+                TextEntry::make('parent')
+            ]);
+    }
     public static function getRelations(): array
     {
         return [
@@ -102,9 +113,9 @@ class CategoryResource extends Resource
     {
         return [
             'index' => Pages\ListCategories::route('/'),
-            'create' => Pages\CreateCategory::route('/create'),
-            'view' => Pages\ViewCategory::route('/{record}'),
-            'edit' => Pages\EditCategory::route('/{record}/edit'),
+            // 'create' => Pages\CreateCategory::route('/create'),
+            // 'view' => Pages\ViewCategory::route('/{record}'),
+            // 'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
     }
 }

@@ -16,6 +16,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Group as ComponentsGroup;
+use Filament\Forms\Components\Split;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -48,94 +49,91 @@ class ProductResource extends Resource
         $loggedInUserId = Auth::id();
         return $form
             ->schema([
-                Forms\Components\Section::make()
-                    ->schema([
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Active')
-                            ->onIcon('heroicon-m-check-circle')
-                            ->offIcon('heroicon-m-x-circle')
-                            ->onColor('success')
-                            ->offColor('danger')
-                            ->default(true)
-                            ->required(),
+                Split::make([
 
-                    ])->columns(2),
-                Forms\Components\Section::make('Information')
-                    ->schema([
+                    Forms\Components\Section::make('Information')
+                        ->schema([
 
-                        Forms\Components\TextInput::make('title')
-                            ->required()
-                            ->maxLength(255)
-                            ->live()
-                            // ->columnSpanFull()
-                            ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
-                                if (($get('slug') ?? '') !== Str::slug($old)) {
-                                    return;
-                                }
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->maxLength(255)
+                                ->live()
+                                // ->columnSpanFull()
+                                ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+                                    if (($get('slug') ?? '') !== Str::slug($old)) {
+                                        return;
+                                    }
 
-                                $set('slug', Str::slug($state));
-                            }),
-                        Forms\Components\TextInput::make('slug')
-                            ->disabled()
-                            ->dehydrated()
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(Product::class, 'slug', ignoreRecord: true),
+                                    $set('slug', Str::slug($state));
+                                }),
+                            Forms\Components\TextInput::make('slug')
+                                ->disabled()
+                                ->dehydrated()
+                                ->required()
+                                ->maxLength(255)
+                                ->unique(Product::class, 'slug', ignoreRecord: true),
 
-                        Forms\Components\TextInput::make('sub_title')
-                            ->maxLength(255),
+                            Forms\Components\TextInput::make('sub_title')
+                                ->maxLength(255),
+                        ]),
+                    Forms\Components\Section::make()
+                        ->schema([
+                            Forms\Components\Toggle::make('is_active')
+                                ->label('Active')
+                                ->onIcon('heroicon-m-check-circle')
+                                ->offIcon('heroicon-m-x-circle')
+                                ->onColor('success')
+                                ->offColor('danger')
+                                ->default(true)
+                                ->required(),
+                            Forms\Components\Select::make('groups')
+                                ->relationship('groups', 'group_name')
+                                ->searchable()
+                                ->multiple()
+                                ->preload()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('group_name')
+                                        ->label('Group Name')
+                                        ->required()
+                                        ->maxLength(100),
+                                    Forms\Components\TextInput::make('group_code')
+                                        ->label('Group Code')
+                                        ->required()
+                                        ->maxLength(6)
+                                        ->required()
+                                        ->unique()
+                                ])
+                                ->required(),
+                            Forms\Components\Select::make('categories')
+                                ->relationship('categories', 'name')
+                                ->searchable()
+                                ->multiple()
+                                ->preload()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Category Name')
+                                        ->required()
+                                        ->maxLength(100)
+                                        ->live()
+                                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                    Forms\Components\TextInput::make('slug')
+                                        ->disabled()
+                                        ->dehydrated()
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->unique(Category::class, 'slug', ignoreRecord: true),
+                                    Forms\Components\Select::make('parent')
+                                        ->options(function () {
+                                            return Category::all()->pluck('name', 'id');
+                                        })
+                                ])
+                                ->required(),
+                            Forms\Components\FileUpload::make('thumbnail'),
 
-                        Forms\Components\Select::make('thumbnail')
-                            ->relationship('images', 'image_alt')
-                            ->searchable()
-                            ->live()
-                            ->preload(),
-                    ])->columns(2),
+                        ])->grow(false),
+                ])->from('md'),
                 Forms\Components\Section::make('Maping')
-                    ->schema([
-                        Forms\Components\Select::make('groups')
-                            ->relationship('groups', 'group_name')
-                            ->searchable()
-                            ->multiple()
-                            ->preload()
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('group_name')
-                                    ->label('Group Name')
-                                    ->required()
-                                    ->maxLength(100),
-                                Forms\Components\TextInput::make('group_code')
-                                    ->label('Group Code')
-                                    ->required()
-                                    ->maxLength(6)
-                                    ->required()
-                                    ->unique()
-                            ])
-                            ->required(),
-                        Forms\Components\Select::make('categories')
-                            ->relationship('categories', 'name')
-                            ->searchable()
-                            ->multiple()
-                            ->preload()
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Category Name')
-                                    ->required()
-                                    ->maxLength(100)
-                                    ->live()
-                                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
-                                Forms\Components\TextInput::make('slug')
-                                    ->disabled()
-                                    ->dehydrated()
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->unique(Category::class, 'slug', ignoreRecord: true),
-                                Forms\Components\Select::make('parent')
-                                    ->options(function () {
-                                        return Category::all()->pluck('name', 'id');
-                                    })
-                            ])
-                            ->required(),
-                    ])->columns(2),
+                    ->schema([])->columns(2),
                 Forms\Components\Section::make('Descriptions')
                     ->schema([
                         Forms\Components\MarkdownEditor::make('points')
@@ -152,10 +150,7 @@ class ProductResource extends Resource
                             ->fileAttachmentsVisibility('private')
                             ->columnSpanFull(),
                     ])->columns(2),
-
-
-
-            ])->columns(2);
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -221,8 +216,8 @@ class ProductResource extends Resource
         return [
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
-            'view' => Pages\ViewProduct::route('/{record}'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            // 'view' => Pages\ViewProduct::route('/{record}'),
+            // 'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
 }
