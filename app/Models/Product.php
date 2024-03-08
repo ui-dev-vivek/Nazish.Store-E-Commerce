@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -18,6 +19,7 @@ class Product extends Model
         'is_active',
         'user_id',
         'group_id',
+        'thumbnail',
     ];
 
     public function user()
@@ -56,6 +58,15 @@ class Product extends Model
             } else {
                 $product->user_id = null;
                 $product->group_id = 1;
+            }
+        });
+        static::creating(function ($model) {
+            $model->slug = Str::slug($model->title);
+        });
+
+        static::updating(function ($model) {
+            if ($model->isDirty('title')) {
+                $model->slug = Str::slug($model->slug);
             }
         });
     }

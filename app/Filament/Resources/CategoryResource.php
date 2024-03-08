@@ -40,21 +40,11 @@ class CategoryResource extends Resource
 
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255)
-                    ->live()
-                    ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
-                        if (($get('slug') ?? '') !== Str::slug($old)) {
-                            return;
-                        }
-
-                        $set('slug', Str::slug($state));
-                    }),
-                Forms\Components\TextInput::make('slug')
-                    ->required()
                     ->maxLength(255),
+
                 Forms\Components\Select::make('parent')
                     ->options(function () {
-                        return Category::all()->pluck('name', 'id');
+                        return Category::where('parent', null)->get()->pluck('name', 'id');
                     })->searchable()
 
             ]);
@@ -66,9 +56,6 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('parent')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -82,8 +69,9 @@ class CategoryResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()->label(''),
+                Tables\Actions\EditAction::make()->label(''),
+                Tables\Actions\DeleteAction::make()->label(''),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -98,7 +86,7 @@ class CategoryResource extends Resource
         return $infolist
             ->schema([
                 TextEntry::make('name'),
-                TextEntry::make('parent')
+                TextEntry::make('parent'),
             ]);
     }
     public static function getRelations(): array
@@ -113,9 +101,9 @@ class CategoryResource extends Resource
     {
         return [
             'index' => Pages\ListCategories::route('/'),
-            // 'create' => Pages\CreateCategory::route('/create'),
-            // 'view' => Pages\ViewCategory::route('/{record}'),
-            // 'edit' => Pages\EditCategory::route('/{record}/edit'),
+            'create' => Pages\CreateCategory::route('/create'),
+            'view' => Pages\ViewCategory::route('/{record}'),
+            'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Image;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,37 +31,50 @@ class ImageResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('source')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('image_alt')
-                    ->image()
-                    ->required(),
+                // Forms\Components\TextInput::make('source')
+                //     ->required()
+                //     ->maxLength(255),
+                // Forms\Components\FileUpload::make('image_alt')->label('Name')
+                //     ->image()
+                //     ->required(),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('source')
             ->columns([
-                Tables\Columns\TextColumn::make('source')
-                    ->searchable(),
-                Tables\Columns\ImageColumn::make('image_alt'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\ImageColumn::make('source')
+                        ->height('50%')
+                        ->width('50%')->columnSpan(3),
+                    Tables\Columns\Layout\Stack::make([
+                        Tables\Columns\TextColumn::make('image_alt')
+                            ->weight(FontWeight::Bold),
+                    ]),
+
+                ])->columnSpan(3),
+
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->paginated([
+                18,
+                36,
+                72,
+                'all',
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -80,9 +94,9 @@ class ImageResource extends Resource
     {
         return [
             'index' => Pages\ListImages::route('/'),
-            'create' => Pages\CreateImage::route('/create'),
-            'view' => Pages\ViewImage::route('/{record}'),
-            'edit' => Pages\EditImage::route('/{record}/edit'),
+            // 'create' => Pages\CreateImage::route('/create'),
+            // 'view' => Pages\ViewImage::route('/{record}'),
+            // 'edit' => Pages\EditImage::route('/{record}/edit'),
         ];
     }
 }

@@ -27,20 +27,12 @@ class ImagesRelationManager extends RelationManager
             ->schema([
                 FileUpload::make('source')
                     ->directory('product-images')
-                    ->visibility('private'),
+                    ->visibility('private')->columnSpanFull(),
                 TextInput::make('image_alt')
                     ->label('Image Description')
                     ->required()
-                    ->maxLength(100),
-
-                Forms\Components\Toggle::make('product_images.is_thumbnail')
-                    ->label('Is Thumbnail')
-                    ->onIcon('heroicon-m-check-circle')
-                    ->offIcon('heroicon-m-x-circle')
-                    ->onColor('success')
-                    ->offColor('danger')
-                    ->default(False)
-                    ->required(),
+                    ->maxLength(100)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -56,7 +48,6 @@ class ImagesRelationManager extends RelationManager
                     Tables\Columns\Layout\Stack::make([
                         Tables\Columns\TextColumn::make('image_alt')
                             ->weight(FontWeight::Bold),
-
                     ]),
 
                 ])->columnSpan(3),

@@ -56,25 +56,13 @@ class ProductResource extends Resource
 
                             Forms\Components\TextInput::make('title')
                                 ->required()
-                                ->maxLength(255)
-                                ->live()
-                                // ->columnSpanFull()
-                                ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
-                                    if (($get('slug') ?? '') !== Str::slug($old)) {
-                                        return;
-                                    }
-
-                                    $set('slug', Str::slug($state));
-                                }),
-                            Forms\Components\TextInput::make('slug')
-                                ->disabled()
-                                ->dehydrated()
-                                ->required()
-                                ->maxLength(255)
-                                ->unique(Product::class, 'slug', ignoreRecord: true),
-
+                                ->maxLength(255),
                             Forms\Components\TextInput::make('sub_title')
                                 ->maxLength(255),
+                            Forms\Components\RichEditor::make('points')
+                                ->required()
+                                ->label('Highlights')
+                                ->columnSpanFull(),
                         ]),
                     Forms\Components\Section::make()
                         ->schema([
@@ -113,36 +101,22 @@ class ProductResource extends Resource
                                     Forms\Components\TextInput::make('name')
                                         ->label('Category Name')
                                         ->required()
-                                        ->maxLength(100)
-                                        ->live()
-                                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
-                                    Forms\Components\TextInput::make('slug')
-                                        ->disabled()
-                                        ->dehydrated()
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->unique(Category::class, 'slug', ignoreRecord: true),
+                                        ->maxLength(100),
                                     Forms\Components\Select::make('parent')
                                         ->options(function () {
-                                            return Category::all()->pluck('name', 'id');
+                                            return Category::where('parent', null)->pluck('name', 'id');
                                         })
                                 ])
                                 ->required(),
-                            Forms\Components\FileUpload::make('thumbnail'),
-
+                            Forms\Components\FileUpload::make('thumbnail')
+                                ->image()
+                                ->directory('thumbnail/products'),
                         ])->grow(false),
                 ])->from('md'),
-                Forms\Components\Section::make('Maping')
-                    ->schema([])->columns(2),
+
                 Forms\Components\Section::make('Descriptions')
                     ->schema([
-                        Forms\Components\MarkdownEditor::make('points')
-                            ->required()
-                            ->label('Highlights')
-                            // ->fileAttachmentsDisk('disks')
-                            ->fileAttachmentsDirectory('attachments')
-                            ->fileAttachmentsVisibility('private')
-                            ->columnSpanFull(),
+
                         Forms\Components\RichEditor::make('body')
                             ->required()
                             // ->fileAttachmentsDisk('disks')
@@ -177,7 +151,7 @@ class ProductResource extends Resource
                     ->searchable()
                     ->toggleable()->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\IconColumn::make('is_active')
+                Tables\Columns\IconColumn::make('is_active')->label('Status')
                     ->boolean()->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -192,8 +166,9 @@ class ProductResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()->label(''),
+                Tables\Actions\EditAction::make()->label(''),
+                Tables\Actions\DeleteAction::make()->label('')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -217,7 +192,7 @@ class ProductResource extends Resource
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
             // 'view' => Pages\ViewProduct::route('/{record}'),
-            // 'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
 }
