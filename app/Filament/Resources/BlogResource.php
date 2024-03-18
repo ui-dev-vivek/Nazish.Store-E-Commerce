@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BlogResource\Pages;
 use App\Filament\Resources\BlogResource\RelationManagers;
 use App\Models\Blog;
+use App\Models\Category;
 use Filament\Forms;
+use Filament\Forms\Components\Split;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -30,51 +32,72 @@ class BlogResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('thumbnail')
-                    ->numeric(),
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('group_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('slug')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('body')
-                    ->required()
-                    ->columnSpanFull(),
-                Forms\Components\Toggle::make('is_active')
-                    ->required(),
-                Forms\Components\TextInput::make('views_count')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-            ]);
+                Split::make([
+                    Forms\Components\Section::make('Information')
+                        ->schema([
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->maxLength(255),
+                            Forms\Components\RichEditor::make('body')
+                                ->required()
+                                ->fileAttachmentsDirectory('blogs')
+                                ->fileAttachmentsVisibility('private')
+                                ->columnSpanFull(),
+                        ]),
+                    Forms\Components\Section::make('Information')
+                        ->schema([
+                            Forms\Components\Toggle::make('is_active')
+                                ->required()
+                                ->label('Active')
+                                ->onIcon('heroicon-m-check-circle')
+                                ->offIcon('heroicon-m-x-circle')
+                                ->onColor('success')
+                                ->offColor('danger')
+                                ->default(true),
+                            Forms\Components\TextInput::make('views_count')
+                                ->required()
+                                ->disabled()
+                                // ->default('10')
+                                ->numeric()
+                                ->default(0),
+
+                            Forms\Components\Select::make('categories')
+                                ->relationship('categories', 'name')
+                                ->searchable()
+                                ->multiple()
+                                ->preload()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Category Name')
+                                        ->required()
+                                        ->maxLength(100),
+                                    Forms\Components\Select::make('parent')
+                                        ->options(function () {
+                                            return Category::where('parent', null)->pluck('name', 'id');
+                                        })
+                                ])
+                                ->required(),
+                            Forms\Components\FileUpload::make('thumbnail')
+                                ->image()
+                                ->directory('thumbnail/blogs')
+                                ->columnSpanFull(),
+                        ])->grow(false),
+
+                ])
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('thumbnail')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('group_id')
-                    ->numeric()
+                Tables\Columns\ImageColumn::make('thumbnail')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->searchable(),
-                Tables\Columns\IconColumn::make('is_active')
+                Tables\Columns\IconColumn::make('is_active')->label('Active')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('views_count')
+                Tables\Columns\TextColumn::make('views_count')->label('Views')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('image_id')->constrained('images')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->tinyInteger('is_thumbnail');
+
             $table->timestamps();
         });
     }

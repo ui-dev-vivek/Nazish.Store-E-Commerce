@@ -53,7 +53,6 @@ class ProductResource extends Resource
 
                     Forms\Components\Section::make('Information')
                         ->schema([
-
                             Forms\Components\TextInput::make('title')
                                 ->required()
                                 ->maxLength(255),

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('slug');
-            $table->foreignId('thumbnail')->nullable()->constrained('images')->onDelete('cascade');
+            $table->string('thumbnail')->nullable();
             $table->longText('body');
             $table->tinyInteger('is_active');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
